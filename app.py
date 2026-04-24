@@ -1,10 +1,44 @@
 import plotly.express as px
 import pandas as pd
 
-données = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSC4KusfFzvOsr8WJRgozzsCxrELW4G4PopUkiDbvrrV2lg0S19-zeryp02MC9WYSVBuzGCUtn8ucZW/pub?output=csv')
+url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSC4KusfFzvOsr8WJRgozzsCxrELW4G4PopUkiDbvrrV2lg0S19-zeryp02MC9WYSVBuzGCUtn8ucZW/pub?output=csv"
+donnees = pd.read_csv(url)
 
-figure = px.pie(données, values='qte', names='region', title='quantité vendue par région')
+print(donnees.columns)
 
-figure.write_html('ventes-par-region.html')
+ventes_produit = donnees.groupby('produit')['qte'].sum().reset_index()
 
-print('ventes-par-région.html généré avec succès !')
+fig1 = px.bar(
+    ventes_produit,
+    x='produit',
+    y='qte',
+    title='Ventes par produit',
+    color='produit'
+)
+
+fig1.write_html('ventes-par-produit.html')
+
+donnees['CA'] = donnees['qte'] * donnees['prix']
+
+ca_produit = donnees.groupby('produit')['CA'].sum().reset_index()
+
+fig2 = px.bar(
+    ca_produit,
+    x='produit',
+    y='CA',
+    title="Chiffre d'affaires par produit",
+    color='produit'
+)
+
+fig2.write_html('ca-par-produit.html')
+
+fig3 = px.pie(
+    donnees,
+    values='qte',
+    names='region',
+    title='Quantité vendue par région'
+)
+
+fig3.write_html('ventes-par-region.html')
+
+print("✅ Tous les graphiques ont été générés avec succès !")
